@@ -64,6 +64,7 @@ def main(port, ip_B = None, port_B = None):
                 agreement = input(check)
     else:
         print('Impossible, Fatal logic error.')
+        
 if __name__ == '__main__':
     try:
         if len(sys.argv) != 2 and len(sys.argv) != 4:
