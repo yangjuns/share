@@ -2,7 +2,7 @@
 !.gitignore
 
 #keep track of transfer.py
-!transfer.py
+!share.py
 
 #keep track of report.txt
 !report.txt
