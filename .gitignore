@@ -6,3 +6,6 @@
 
 #keep track of report.txt
 !report.txt
+
+#keep track of progress_bar.py
+!progress_bar.py
