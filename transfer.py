@@ -15,7 +15,7 @@ def main(port, ip_B = None, port_B = None):
         s = socket.socket()
         host = socket.gethostname()
         port = int(port)
-        print('hostname:'host)
+        print('hostname:',host)
         s.bind((host,port))
         s.listen(5)
         while True:
@@ -64,7 +64,7 @@ def main(port, ip_B = None, port_B = None):
                 agreement = input(check)
     else:
         print('Impossible, Fatal logic error.')
-        
+
 if __name__ == '__main__':
     try:
         if len(sys.argv) != 2 and len(sys.argv) != 4:
