@@ -1,0 +1,13 @@
+#UI
+
+1. When the file is too large, too many dots
+2. Sould provide percentage instead and loading bars.
+3. client mode has to type in one dummy argument
+4. Should provide a way let user drag the file into the command without typing
+5. Should be able to send files in both directions.
+6. After received files, client shouldn't closing connection.
+
+#BUG
+
+1. host_name bind error
+2. Error handling
