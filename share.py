@@ -159,7 +159,6 @@ def send_file(sock):
         # the input is for receiver
         pass
 
-
 def server_mode(port):
     s = socket.socket()
     host = socket.gethostname()
