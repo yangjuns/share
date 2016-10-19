@@ -7,8 +7,9 @@
 5. Should be able to send files in both directions. (fixed)
 6. After received files, client shouldn't closing connection. (fixed)
 7. Provide receiver a change to modify filenames.
+8. Should send anyfile at any directory
 
 #BUG
 
-1. host_name bind error
+1. host_name bind error (fixed)
 2. Error handling

@@ -161,10 +161,8 @@ def send_file(sock):
 
 def server_mode(port):
     s = socket.socket()
-    host = socket.gethostname()
     port = int(port)
-    print('hostname:',host)
-    s.bind(('127.0.0.1',port))
+    s.bind((socket.gethostbyname(socket.getfqdn()),port))
     s.listen(5)
     print('Waiting for a connection')
     (c, addr) = s.accept()
