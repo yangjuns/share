@@ -49,7 +49,7 @@ class recvThread(threading.Thread):
                 filename = j['filename']
                 size = int(j['size'])
                 check = '{} is goint to send "{}" with size {} bytes. Receive it? [Y/N] '.format(self.ip, filename, size)
-                print(check)
+                print(check, end='')
                 sys.stdout.flush()
                 try:
                     while True:
@@ -63,6 +63,10 @@ class recvThread(threading.Thread):
                     while True:
                         if(agreement == 'Y'):
                             self.sock.send(b'Yes')
+                            new_filename = input("NOTE: The file will be downed at the current directory.\n"+
+                                "How do you want to name this file? "+
+                                "(Leave it blank if your don't want to change it): \n")
+                            filename = filename if new_filename.strip() == '' else new_filename
                             f = open(filename,'wb') #open in binary
                             print('Downloading data...')
 
@@ -97,7 +101,6 @@ def write(filename, c):
         c.send(data)
         data = f.read(BUFFER_SIZE)
     f.close()
-    c.send()
 
 def file_exist(filename):
     try:
