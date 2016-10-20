@@ -9,22 +9,6 @@ recv_lock = threading.Lock()
 userinput = None
 received = None
 
-class sendTread(threading.Thread):
-    def __init__(self, client):
-        threading.Thread.__init__(self)
-        self.sock = client
-
-    def run(self):
-        filename = input('Please type the file_name/path you want to transfer:\n')
-        filename = filename.strip().strip("'").strip('"')
-        #tell the client the file_info you are going to cend
-        self.sock.send(bytes(file_info(filename),'UTF-8'))
-        agreement = str(self.sock.recv(10), 'UTF-8')
-        if(agreement == 'Yes'):
-            write(filename, self.sock)
-            print('Finished sending. Closing connection')
-        self.sock.close()
-
 class recvThread(threading.Thread):
     def __init__(self, sock, ip):
         threading.Thread.__init__(self)
@@ -62,21 +46,20 @@ class recvThread(threading.Thread):
                     agreement = userinput
                     while True:
                         if(agreement == 'Y'):
-                            self.sock.send(b'Yes')
                             new_filename = input("NOTE: The file will be downed at the current directory.\n"+
                                 "How do you want to name this file? "+
                                 "(Leave it blank if your don't want to change it): \n")
                             filename = filename if new_filename.strip() == '' else new_filename
                             f = open(filename,'wb') #open in binary
+                            self.sock.send(b'Yes')
                             print('Downloading data...')
-
                             bytes_rev = 0
-                            pb.printProgress(bytes_rev, size, prefix='Downloaded', barLength=80)
+                            pb.printProgress(bytes_rev, size, prefix='Downloaded', barLength=50)
                             while (bytes_rev < size):
                                 data = self.sock.recv(BUFFER_SIZE)
                                 f.write(data)
                                 bytes_rev += len(data)
-                                pb.printProgress(bytes_rev, size, prefix='Downloaded', barLength=80)
+                                pb.printProgress(bytes_rev, size, prefix='Downloaded', barLength=50)
                             print('Completed!')
                             sys.stdout.flush()
                             f.close()
@@ -87,19 +70,22 @@ class recvThread(threading.Thread):
                         else:
                             agreement = input(check)
                 finally:
-                    print('Receiver release control')
                     process_lock.release()
             else:
                 #sombody else in under control, the data is not for you
                 pass
 
-def write(filename, c):
+def write(filename, c, totalsize):
     """this function write <filename> to socket <c>"""
     f = open(filename, 'rb')
-    data = f.read(BUFFER_SIZE)
-    while data:
-        c.send(data)
+    bytes_sent = 0
+    pb.printProgress(bytes_sent, totalsize, prefix='Sent', barLength=50)
+    while bytes_sent < totalsize:
         data = f.read(BUFFER_SIZE)
+        c.send(data)
+        bytes_sent += len(data)
+        pb.printProgress(bytes_sent, totalsize, prefix='Sent', barLength=50)
+    print('Completed!')
     f.close()
 
 def file_exist(filename):
@@ -113,7 +99,7 @@ def file_exist(filename):
 def file_info(filename):
     """write fileinfo into a JSON str"""
     info = dict(
-        filename = filename,
+        filename = filename.split('/')[-1],
         size = os.stat(filename).st_size
     )
     return json.dumps(info)
@@ -132,13 +118,15 @@ def send_file(sock):
     # finished reading input, checkif the input is for sending data
     if(process_lock.acquire(False)):
         try:
-            print('Sender have the control')
             #now i'm sending data. I have the control
             filename = userinput.strip().strip("'").strip('"')
             #tell the client the file_info you are going to cend
             if file_exist(filename) == False:
                 raise FileNotFoundError
-            sock.send(bytes(file_info(filename),'UTF-8'))
+            json_str = file_info(filename)
+            j = json.loads(json_str)
+            size = int(j['size'])
+            sock.send(bytes(json_str,'UTF-8'))
             # listening thread will received data
             while True:
                 if recv_lock.acquire():
@@ -149,14 +137,12 @@ def send_file(sock):
                         break
             agreement = received
             if agreement == 'Yes':
-                write(filename, sock)
-                print('Finished sending.')
+                write(filename, sock, size)
             elif agreement == 'No':
                 print('He/She rejected to receive the file.')
         except FileNotFoundError:
             print("Sorry. The file doesn't exist.")
         finally:
-            print('sender released the control')
             process_lock.release()
     else:
         # the input is for receiver
@@ -166,6 +152,7 @@ def server_mode(port):
     s = socket.socket()
     port = int(port)
     s.bind((socket.gethostbyname(socket.getfqdn()),port))
+    #s.bind(('10.0.0.213',port))
     s.listen(5)
     print('Waiting for a connection')
     (c, addr) = s.accept()

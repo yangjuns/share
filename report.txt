@@ -8,8 +8,9 @@
 6. After received files, client shouldn't closing connection. (fixed)
 7. Provide receiver a change to modify filenames. (fixed)
 8. Should send anyfile at any directory (fixed)
-9. Sender should also have progress_bar shown.
+9. Sender should also have progress_bar shown. (fixed)
 10. The receiver shouldn't see the directory of the sender system.
+11. Should be able to quit the program
 
 #BUG
 
